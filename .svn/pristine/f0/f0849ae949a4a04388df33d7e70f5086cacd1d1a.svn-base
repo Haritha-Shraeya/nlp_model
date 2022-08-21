@@ -1,0 +1,45 @@
+from elasticsearch import Elasticsearch
+
+cloud_id = "TestRun:dXMtY2VudHJhbDEuZ2NwLmNsb3VkLmVzLmlvJDFiOGQyZDVjY2MwNzQ4NGFhYmRmZDkyNWU1MTViZjdjJGJiMThjN2E2NjkxMDRiNmFiMTc4ZjhhMjI4MTRmZTNm"
+es_username = "elastic"
+es_password = "rl7Jt00BI7O97r3x2iKWG6Ug"
+
+
+index_to_id_type = {
+    'ideas': 'idea_id',
+    'solutions': 'solution_id',
+    'challenges': 'challenge_id',
+    'models': 'model_index_number',
+    'generic': 'key'
+}
+
+class ElasticSearchInterface:
+
+    def __int__(self):
+        self.es = Elasticsearch([cloud_id], http_auth = (es_username, es_password))
+        
+    #create index in elastic-search    
+    def create_index(self, indexName):
+        self.es.indices.create(index=indexName, ignore=400)
+
+    #insert/update document in elastic-search
+    def insert_update_doc(self,index,obj):
+        id_type = index_to_id_type[index]
+        search_res = self.es.search(index=index, body={"query": {"match": {id_type: obj[id_type]}}})
+        total_found = search_res['hits']['total']['value']
+        if total_found == 0:
+            value = self.es.index(index=index, body=obj) 
+            print(value)
+            return value 
+            #return self.es.index(index=index, body=obj) 
+
+        elif total_found > 1:
+            return "document id not unique"
+        return self.es.update(index=index, id=search_res['hits']['hits'][0]['_id'], body={"doc": obj})
+
+         
+
+
+
+
+

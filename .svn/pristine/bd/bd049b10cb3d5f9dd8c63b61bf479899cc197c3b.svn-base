@@ -1,0 +1,20 @@
+from .elasticSearch import ElasticSearchInterface
+
+
+challenges_index = 'challenges'
+
+
+
+class Challenge_esi:
+    def __init__(self):
+        self.esi = ElasticSearchInterface()
+
+    def insert_update_challenge(self, data): 
+        #creating document to insert into ElasticSearch
+        challenge_data_doc = {
+            "challenge_id": data["challenge_id"],
+            "challenge_title": data["challenge_title"],
+            "text": data["text"]
+        }  
+
+        return self.esi.insert_update_doc(challenges_index, challenge_data_doc)   #do i create challenges_index?   
